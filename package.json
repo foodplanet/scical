@@ -1,6 +1,6 @@
 {
   "name": "scical",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Scientific calculation with significant figures",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -27,7 +27,10 @@
     "email": "hello@tomrichter.dev",
     "url": "https://tomrichter.dev"
   },
-  "keywords": ["science", "calculation"],
+  "keywords": [
+    "science",
+    "calculation"
+  ],
   "license": "MIT",
   "devDependencies": {
     "@types/jest": "^26.0.20",
