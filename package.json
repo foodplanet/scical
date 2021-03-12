@@ -2,7 +2,8 @@
   "name": "scical",
   "version": "0.0.1",
   "description": "Scientific calculation with significant figures",
-  "main": "index.js",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "files": [
     "lib/**/*"
   ],
@@ -10,9 +11,19 @@
     "test": "jest --config jestconfig.json",
     "build": "tsc",
     "format": "prettier --write \"src/**/*.ts\"",
-    "lint": "tslint -p tsconfig.json"
+    "lint": "tslint -p tsconfig.json",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm test && npm run lint",
+    "preversion": "npm run lint",
+    "version": "npm run format && git add -A src",
+    "postversion": "git push && git push --tags"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/foodplanet/scical.git"
   },
   "author": "Tom Richter",
+  "keywords": ["science", "calculation"],
   "license": "ISC",
   "devDependencies": {
     "@types/jest": "^26.0.20",
