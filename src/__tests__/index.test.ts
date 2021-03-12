@@ -28,3 +28,15 @@ test('toString', () => {
   expect(new PrecisionNumber(-655, 0, 2).toString()).toEqual('-66E0')
   expect(new PrecisionNumber(-999, 0, 2).toString()).toEqual('-100E0')
 })
+
+test('fromString', () => {
+  expect(PrecisionNumber.fromString('23E1')).toEqual(new PrecisionNumber(23, 1))
+  expect(PrecisionNumber.fromString('-892E-31')).toEqual(
+    new PrecisionNumber(-892, -31),
+  )
+  expect(PrecisionNumber.fromString('0E0')).toEqual(new PrecisionNumber(0, 0))
+  expect(PrecisionNumber.fromString('-0E-0')).toEqual(new PrecisionNumber(0, 0))
+  expect(() => PrecisionNumber.fromString('4e-2')).toThrow(Error)
+  expect(() => PrecisionNumber.fromString('4E+2')).toThrow(Error)
+  expect(() => PrecisionNumber.fromString('E55')).toThrow(Error)
+})

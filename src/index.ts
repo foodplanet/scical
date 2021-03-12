@@ -18,6 +18,22 @@ export class PrecisionNumber {
     }
   }
 
+  static fromString(rawNumber: string): PrecisionNumber {
+    if (rawNumber.match(/^-?\d+E-?\d+$/)) {
+      const [rawSignificand, rawExponent] = rawNumber.split('E')
+      let significand = parseInt(rawSignificand, 10)
+      let exponent = parseInt(rawExponent, 10)
+
+      // make sure significand and exponent are not -0, should be done in setter
+      significand = significand === 0 ? 0 : significand
+      exponent = exponent === 0 ? 0 : exponent
+
+      return new this(significand, exponent)
+    } else {
+      throw new Error('The string was invalid.')
+    }
+  }
+
   get significand(): number {
     return this._significand
   }
