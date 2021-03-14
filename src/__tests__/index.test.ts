@@ -77,34 +77,38 @@ test('fromString', () => {
 })
 
 
-// test.each([
-//   [23, 2, 2, 5, -1, 1, 23005, -1, 2],
-//   [-3, 0, 1, 5, 0, 1, 2, 0, 1],
-//   [999, -2, 2, 999, -1, 3, 10989, -2, 4],
-//   [1, 3, 1, 9, 2, 1, 19, 2, 1],
-//   // both significands are zero
-//   [0, 1, 1, 0, 0, 1, 0, 1, 1],
-//   [0, 0, 1, 0, 0, 1, 0, 0, 1],
-//   [0, -4, 1, 0, -4, 1, 0, -4, 1],
-//   [0, -11, 1, 0, 10, 1, 0, 10, 1],
-//   // one significand is zero
-//   [1, 0, 1, 0, 0, 1, 1, 0, 1],
-//   [45, 0, 2, 0, 1, 1, 45, 0, 1],
-// ])(
-//   '(%i, %i, %i).add((%i, %i, %i))',
-//   (
-//     significand1,
-//     exponent1,
-//     precision1,
-//     significand2,
-//     exponent2,
-//     precision2,
-//     significandRes,
-//     exponentRes,
-//     precisionRes
-//   ) => {
-//     const num1 = new PrecisionNumber(significand1, exponent1, precision1)
-//     const num2 = new PrecisionNumber(significand2, exponent2, precision2)
-//     expect(num1.add(num2)).toEqual(new PrecisionNumber(significandRes, exponentRes, precisionRes))
-//   }
-// )
+test.each([
+  ['23', false, 2, 2, '5', false, -1, 1, '23005', false, -1, 2],
+  ['3', true, 0, 1, '5', false, 0, 1, '2', false, 0, 1],
+  ['999', false, -2, 2, '999', false, -1, 3, '10989', false, -2, 4],
+  ['1', false, 3, 1, '9', false, 2, 1, '19', false, 2, 1],
+  // both significands are zero
+  ['0', false, 1, 1, '0', false, 0, 1, '00', false, 0, 1],
+  ['0', false, 1, 1, '5', false, 0, 1, '05', false, 0, 1],
+  ['0', false, 0, 1, '0', false, 0, 1, '0', false, 0, 1],
+  ['0', false, -4, 1, '0', false, -4, 1, '0', false, -4, 1],
+  // ['0', false, -11, 1, '0', false, 10, 1, '0', false, 10, 1],
+  // one significand is zero
+  ['1', false, 0, 1, '0', false, 0, 1, '1', false, 0, 1],
+  ['45', false, 0, 2, '0', false, 1, 1, '45', false, 0, 1],
+])(
+  '(%s, %d, %i, %i).add((%s, %d, %i, %i))',
+  (
+    significand1,
+    isSignificand1Negative,
+    exponent1,
+    precision1,
+    significand2,
+    isSignificand2Negative,
+    exponent2,
+    precision2,
+    significandRes,
+    isSignificandResNegative,
+    exponentRes,
+    precisionRes
+  ) => {
+    const num1 = new PrecisionNumber(significand1, isSignificand1Negative, exponent1, precision1)
+    const num2 = new PrecisionNumber(significand2, isSignificand2Negative, exponent2, precision2)
+    expect(num1.add(num2)).toEqual(new PrecisionNumber(significandRes, isSignificandResNegative, exponentRes, precisionRes))
+  }
+)
