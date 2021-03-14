@@ -127,56 +127,52 @@ export class PrecisionNumber {
     return sign + significand + 'E' + this.exponent.toString()
   }
 
-  add(num: PrecisionNumber): PrecisionNumber {
-    // special case if both significands are zero because padding does not work with: significand2 *= 10 ** padding bcs the number of digits doesn't increase
-    // if (this.significand === 0 && num.significand === 0) {
-    //   return new PrecisionNumber(0, Math.max(this.exponent, num.exponent), 1)
-    // }
-    let paddedSignificand = 0
-    let significand1 = this._significand
-    let significand2 = num.significand
-    let significand1InsignificantDigits = 0
-    let significand2InsignificantDigits = 0
-    let padding = 0
-
-    // padd the shorter significand with zeros to the same length as the longer one
-    if (this._exponent > num.exponent) {
-      paddedSignificand = 1
-      padding = this._exponent - num.exponent
-      significand1InsignificantDigits =
-        significand1.length - this._precision + padding
-      significand2InsignificantDigits = significand2.length - num.precision
-      significand1 += '0'.repeat(padding)
-    } else if (num.exponent > this._exponent) {
-      paddedSignificand = 2
-      padding = num.exponent - this._exponent
-      significand1InsignificantDigits = significand1.length - this._precision
-      significand2InsignificantDigits =
-        significand2.length - num.precision + padding
-      significand2 += '0'.repeat(padding)
+  private determineNumberToPad(num1: PrecisionNumber, num2: PrecisionNumber) {
+    console.log('h', num1.exponent, num2.exponent)
+    if (num1.exponent > num2.exponent) {
+      return [num1, num2]
+    } else {
+      return [num2, num1]
     }
+  }
+
+  add(num: PrecisionNumber): PrecisionNumber {
+    // special case if both significands are zero
+    if (
+      parseInt(this.significand, 10) === 0 &&
+      parseInt(num.significand, 10) === 0
+    ) {
+      return new PrecisionNumber(
+        '0',
+        false,
+        Math.max(this.exponent, num.exponent),
+        1,
+      )
+    }
+    const [paddedNumber, unpaddedNumber] = this.determineNumberToPad(this, num)
+    const padding = paddedNumber.exponent - unpaddedNumber.exponent
+    const paddedSignificand = paddedNumber.significand + '0'.repeat(padding)
+
     const newSignificand =
-      Number(significand1) * (this.isSignificandNegative ? -1 : 1) +
-      Number(significand2) * (num.isSignificandNegative ? -1 : 1)
-    // new exponent is the one we haven't padded
-    const newExponent = paddedSignificand === 2 ? this._exponent : num.exponent
+      Number(unpaddedNumber.significand) *
+        (unpaddedNumber.isSignificandNegative ? -1 : 1) +
+      Number(paddedSignificand) * (paddedNumber.isSignificandNegative ? -1 : 1)
+
+    const maxNumOfInsignificantDigits = Math.max(
+      paddedSignificand.length - paddedNumber.precision,
+      unpaddedNumber.significand.length - unpaddedNumber.precision,
+    )
     const newPrecision = Math.max(
-      Math.abs(newSignificand).toString().length -
-        Math.max(
-          significand1InsignificantDigits,
-          significand2InsignificantDigits,
-        ),
+      Math.abs(newSignificand).toString().length - maxNumOfInsignificantDigits,
       1,
     )
 
-    const isNewSignificantNegative = newSignificand < 0
-
     let minLength = 0
-    if (this.hasLeadingZero(significand1)) {
-      minLength = significand1.length
+    if (this.hasLeadingZero(paddedSignificand)) {
+      minLength = paddedSignificand.length
     }
-    if (this.hasLeadingZero(significand2)) {
-      minLength = Math.max(minLength, significand2.length)
+    if (this.hasLeadingZero(unpaddedNumber.significand)) {
+      minLength = Math.max(minLength, unpaddedNumber.significand.length)
     }
 
     let newSignificandWithLeadingZeros = Math.abs(newSignificand).toString()
@@ -185,6 +181,9 @@ export class PrecisionNumber {
         '0'.repeat(minLength - newSignificandWithLeadingZeros.length) +
         newSignificandWithLeadingZeros
     }
+
+    const isNewSignificantNegative = newSignificand < 0
+    const newExponent = unpaddedNumber.exponent
 
     // console.log(
     //   newSignificandWithLeadingZeros,

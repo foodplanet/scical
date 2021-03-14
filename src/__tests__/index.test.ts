@@ -83,11 +83,11 @@ test.each([
   ['999', false, -2, 2, '999', false, -1, 3, '10989', false, -2, 4],
   ['1', false, 3, 1, '9', false, 2, 1, '19', false, 2, 1],
   // both significands are zero
-  ['0', false, 1, 1, '0', false, 0, 1, '00', false, 0, 1],
+  ['0', false, 1, 1, '0', false, 0, 1, '0', false, 1, 1],
   ['0', false, 1, 1, '5', false, 0, 1, '05', false, 0, 1],
   ['0', false, 0, 1, '0', false, 0, 1, '0', false, 0, 1],
   ['0', false, -4, 1, '0', false, -4, 1, '0', false, -4, 1],
-  // ['0', false, -11, 1, '0', false, 10, 1, '0', false, 10, 1],
+  ['0', false, -11, 1, '0', false, 10, 1, '0', false, 10, 1],
   // one significand is zero
   ['1', false, 0, 1, '0', false, 0, 1, '1', false, 0, 1],
   ['45', false, 0, 2, '0', false, 1, 1, '45', false, 0, 1],
