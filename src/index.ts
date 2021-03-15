@@ -21,15 +21,51 @@ export class PrecisionNumber {
     }
   }
 
-  static fromString(rawNumber: string): PrecisionNumber {
-    if (rawNumber.match(/^-?\d+E-?\d+$/)) {
-      const [significand, rawExponent] = rawNumber.split('E')
-      let exponent = parseInt(rawExponent, 10)
+  static fromString(num: string): PrecisionNumber {
+    if (num.match(/^-?\d+E-?\d+$/)) {
+      const [significand, rawExponent] = num.split('E')
+      const exponent = parseInt(rawExponent, 10)
 
       if (significand[0] === '-') {
         return new this(significand.slice(1), true, exponent)
       } else {
         return new this(significand, false, exponent)
+      }
+    } else {
+      throw new Error('The provided string is invalid.')
+    }
+  }
+
+  static fromDecimalString(num: string, exponent = 0) {
+    if (num.match(/^-?\d+$/)) {
+      if (num[0] === '-') {
+        return new this(num.slice(1), true, exponent)
+      } else {
+        return new this(num, false, exponent)
+      }
+    } else if (num.match(/^-?\d+\.\d+$/)) {
+      const numOfDigitsAfterDecimal = num.split('.')[1].length
+      let numWithoutDecimalPoint = num.replace('.', '')
+      numWithoutDecimalPoint = numWithoutDecimalPoint.slice(
+        PrecisionNumber.leadingZeros(numWithoutDecimalPoint),
+      )
+
+      if (num.match(/^-?0+\.0+$/)) {
+        return new this('0', false, exponent - numOfDigitsAfterDecimal)
+      }
+
+      if (numWithoutDecimalPoint[0] === '-') {
+        return new this(
+          numWithoutDecimalPoint.slice(1),
+          true,
+          exponent - numOfDigitsAfterDecimal,
+        )
+      } else {
+        return new this(
+          numWithoutDecimalPoint,
+          false,
+          exponent - numOfDigitsAfterDecimal,
+        )
       }
     } else {
       throw new Error('The provided string is invalid.')
@@ -94,13 +130,13 @@ export class PrecisionNumber {
   private removeUnnecessaryLeadingZeros(): void {
     if (this.significand.length === this.precision) {
       this._significand = this.significand.slice(
-        this.leadingZeros(this.significand),
+        PrecisionNumber.leadingZeros(this.significand),
       )
       this._precision = this.significand.length
     }
   }
 
-  private leadingZeros(num: string): number {
+  private static leadingZeros(num: string): number {
     let numOfLeadingZeros = 0
     for (const char of num.slice(0, -1)) {
       if (char === '0') {
@@ -128,7 +164,6 @@ export class PrecisionNumber {
   }
 
   private determineNumberToPad(num1: PrecisionNumber, num2: PrecisionNumber) {
-    console.log('h', num1.exponent, num2.exponent)
     if (num1.exponent > num2.exponent) {
       return [num1, num2]
     } else {
