@@ -1,51 +1,174 @@
 import { PrecisionNumber } from '../index'
 
+
+test('removeUnnecessaryZeros', () => {
+  expect(PrecisionNumber.removeUnnecessaryZeros('23', 0, 2)).toEqual(['23', 0, 2])
+  expect(PrecisionNumber.removeUnnecessaryZeros('230', 0, 2)).toEqual(['23', 1, 2])
+  expect(PrecisionNumber.removeUnnecessaryZeros('523', -24, 2)).toEqual(['523', -24, 2])
+  expect(PrecisionNumber.removeUnnecessaryZeros('0430', 0, 2)).toEqual(['43', 1, 1])
+  expect(PrecisionNumber.removeUnnecessaryZeros('00083', 0, 2)).toEqual(['0083', 0, 1])
+})
+
+
 test('constructor', () => {
-  expect(new PrecisionNumber('23', false, 0).significand).toEqual('23')
-  expect(new PrecisionNumber('23', false, 0).isSignificandNegative).toEqual(false)
-  expect(new PrecisionNumber('23', false, 0).exponent).toEqual(0)
-  expect(new PrecisionNumber('23', false, 0).precision).toEqual(2)
-  expect(new PrecisionNumber('8', true, 1).significand).toEqual('8')
-  expect(new PrecisionNumber('8', true, 1).isSignificandNegative).toEqual(true)
-  expect(new PrecisionNumber('8', true, 1).exponent).toEqual(1)
-  expect(new PrecisionNumber('8', true, 1).precision).toEqual(1)
-  expect(new PrecisionNumber('523', false, -24, 2).significand).toEqual("523")
-  expect(new PrecisionNumber('523', false, -24, 2).isSignificandNegative).toEqual(false)
-  expect(new PrecisionNumber('523', false, -24, 2).exponent).toEqual(-24)
-  expect(new PrecisionNumber('523', false, -24, 2).precision).toEqual(2)
-
-  const num1= new PrecisionNumber('012', false, -3, 2)
-  expect(num1.significand).toEqual('012')
+  // zero
+  const num1 = new PrecisionNumber('0', false, 0)
+  expect(num1.significand).toEqual('0')
   expect(num1.isSignificandNegative).toEqual(false)
-  expect(num1.exponent).toEqual(-3)
-  expect(num1.precision).toEqual(2)
+  expect(num1.exponent).toEqual(0)
+  expect(num1.precision).toEqual(1)
 
-  const num2= new PrecisionNumber('012', false, 0)
-  expect(num2.significand).toEqual('12')
+  const num2 = new PrecisionNumber('0', true, 0)
+  expect(num2.significand).toEqual('0')
   expect(num2.isSignificandNegative).toEqual(false)
   expect(num2.exponent).toEqual(0)
-  expect(num2.precision).toEqual(2)
+  expect(num2.precision).toEqual(1)
 
-  const num3= new PrecisionNumber('00', true, 0)
+  const num3 = new PrecisionNumber('00', false, 0)
   expect(num3.significand).toEqual('0')
   expect(num3.isSignificandNegative).toEqual(false)
   expect(num3.exponent).toEqual(0)
   expect(num3.precision).toEqual(1)
 
-  const num4= new PrecisionNumber('000', false, 0, 1)
-  expect(num4.significand).toEqual('000')
+  const num4 = new PrecisionNumber('0', false, 1)
+  expect(num4.significand).toEqual('0')
   expect(num4.isSignificandNegative).toEqual(false)
-  expect(num4.exponent).toEqual(0)
+  expect(num4.exponent).toEqual(1)
   expect(num4.precision).toEqual(1)
 
+  const num5 = new PrecisionNumber('000', false, 7)
+  expect(num5.significand).toEqual('0')
+  expect(num5.isSignificandNegative).toEqual(false)
+  expect(num5.exponent).toEqual(7)
+  expect(num5.precision).toEqual(1)
+
+  const num6 = new PrecisionNumber('0', false, -1)
+  expect(num6.significand).toEqual('0')
+  expect(num6.isSignificandNegative).toEqual(false)
+  expect(num6.exponent).toEqual(-1)
+  expect(num6.precision).toEqual(1)
+
+  const num7 = new PrecisionNumber('0000', false, -3)
+  expect(num7.significand).toEqual('0')
+  expect(num7.isSignificandNegative).toEqual(false)
+  expect(num7.exponent).toEqual(-3)
+  expect(num7.precision).toEqual(1)
+
+  const num8 = new PrecisionNumber('0', false, 0, 1)
+  expect(num8.significand).toEqual('0')
+  expect(num8.isSignificandNegative).toEqual(false)
+  expect(num8.exponent).toEqual(0)
+  expect(num8.precision).toEqual(1)
+
+  const num9 = new PrecisionNumber('000', false, 0, 2)
+  expect(num9.significand).toEqual('0')
+  expect(num9.isSignificandNegative).toEqual(false)
+  expect(num9.exponent).toEqual(1)
+  expect(num9.precision).toEqual(1)
+
+  const num10 = new PrecisionNumber('00000', false, -6, 4)
+  expect(num10.significand).toEqual('0')
+  expect(num10.isSignificandNegative).toEqual(false)
+  expect(num10.exponent).toEqual(-5)
+  expect(num10.precision).toEqual(1)
+
+  const num11 = new PrecisionNumber('00000', false, 3, 2)
+  expect(num11.significand).toEqual('0')
+  expect(num11.isSignificandNegative).toEqual(false)
+  expect(num11.exponent).toEqual(6)
+  expect(num11.precision).toEqual(1)
+
+
+  const num12 = new PrecisionNumber('23', false, 0)
+  expect(num12.significand).toEqual('23')
+  expect(num12.isSignificandNegative).toEqual(false)
+  expect(num12.exponent).toEqual(0)
+  expect(num12.precision).toEqual(2)
+
+  const num12a = new PrecisionNumber('230', false, 0, 2)
+  expect(num12a.significand).toEqual('23')
+  expect(num12a.isSignificandNegative).toEqual(false)
+  expect(num12a.exponent).toEqual(1)
+  expect(num12a.precision).toEqual(2)
+
+  const num12b = new PrecisionNumber('2300', false, 2, 3)
+  expect(num12b.significand).toEqual('230')
+  expect(num12b.isSignificandNegative).toEqual(false)
+  expect(num12b.exponent).toEqual(3)
+  expect(num12b.precision).toEqual(3)
+
+  const num13 = new PrecisionNumber('8', true, 1)
+  expect(num13.significand).toEqual('8')
+  expect(num13.isSignificandNegative).toEqual(true)
+  expect(num13.exponent).toEqual(1)
+  expect(num13.precision).toEqual(1)
+
+  const num14 = new PrecisionNumber('523', false, -24, 2)
+  expect(num14.significand).toEqual('523')
+  expect(num14.isSignificandNegative).toEqual(false)
+  expect(num14.exponent).toEqual(-24)
+  expect(num14.precision).toEqual(2)
+
+  const num15 = new PrecisionNumber('043', false, 0, 2)
+  expect(num15.significand).toEqual('43')
+  expect(num15.isSignificandNegative).toEqual(false)
+  expect(num15.exponent).toEqual(0)
+  expect(num15.precision).toEqual(1)
+  
+  const num15a = new PrecisionNumber('0430', false, 0, 2)
+  expect(num15a.significand).toEqual('43')
+  expect(num15a.isSignificandNegative).toEqual(false)
+  expect(num15a.exponent).toEqual(1)
+  expect(num15a.precision).toEqual(1)
+
+  const num16 = new PrecisionNumber('00043762', false, 3, 5)
+  expect(num16.significand).toEqual('43762')
+  expect(num16.isSignificandNegative).toEqual(false)
+  expect(num16.exponent).toEqual(3)
+  expect(num16.precision).toEqual(2)
+
+  const num17 = new PrecisionNumber('00083', false, 0, 2)
+  expect(num17.significand).toEqual('0083')
+  expect(num17.isSignificandNegative).toEqual(false)
+  expect(num17.exponent).toEqual(0)
+  expect(num17.precision).toEqual(1)
+
+  const num18 = new PrecisionNumber('00000900', false, -3, 3)
+  expect(num18.significand).toEqual('0009')
+  expect(num18.isSignificandNegative).toEqual(false)
+  expect(num18.exponent).toEqual(-1)
+  expect(num18.precision).toEqual(1)
+
+  const num19 = new PrecisionNumber('012', false, -3, 2)
+  expect(num19.significand).toEqual('12')
+  expect(num19.isSignificandNegative).toEqual(false)
+  expect(num19.exponent).toEqual(-3)
+  expect(num19.precision).toEqual(1)
+
+  const num20 = new PrecisionNumber('012', false, 0)
+  expect(num20.significand).toEqual('12')
+  expect(num20.isSignificandNegative).toEqual(false)
+  expect(num20.exponent).toEqual(0)
+  expect(num20.precision).toEqual(2)
+
+  const num21 = new PrecisionNumber('7', false, -0)
+  expect(num21.significand).toEqual('7')
+  expect(num21.isSignificandNegative).toEqual(false)
+  expect(num21.exponent).toEqual(0)
+  expect(num21.precision).toEqual(1)
+  
+
+  // invalid
   expect(() => new PrecisionNumber('67', false, 0, 3)).toThrow(RangeError)
   expect(() => new PrecisionNumber('9', true, 0, 0)).toThrow(RangeError)
   expect(() => new PrecisionNumber('0', false, 0, -1)).toThrow(RangeError)
+  expect(() => new PrecisionNumber('000', false, 0, 4)).toThrow(RangeError)
 
   expect(() => new PrecisionNumber('-5', false, 0)).toThrow(Error)
   expect(() => new PrecisionNumber('-5', true, 0)).toThrow(Error)
   expect(() => new PrecisionNumber('-0', true, 0)).toThrow(Error)
   expect(() => new PrecisionNumber('0.23', false, 0)).toThrow(Error)
+  expect(() => new PrecisionNumber('', false, 0)).toThrow(Error)
 })
 
 test('toString', () => {

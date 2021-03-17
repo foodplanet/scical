@@ -1,5 +1,7 @@
 # Scical - Scientific Calculation with significant figures
 
+## WIP - Please do not try yet
+
 With the ScientificNumber data type, all arithmetic operations are performed correctly according to the rules for significant figures.
 
 ```
