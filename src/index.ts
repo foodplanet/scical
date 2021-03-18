@@ -21,7 +21,9 @@ export const trailingZeros = (num: string): number => {
   return indexOfFirstNonZeroChar === -1 ? num.length : indexOfFirstNonZeroChar
 }
 
-export const validateCharactersOfSignificand = (significand: string): string => {
+export const validateCharactersOfSignificand = (
+  significand: string,
+): string => {
   if (/^\d+$/.test(significand)) {
     return significand
   } else {
@@ -170,62 +172,16 @@ export class PrecisionNumber {
     return this._significand
   }
 
-  set significand(significand: string) {
-    if (/^\d+$/.test(significand)) {
-      this._significand = significand
-    } else {
-      throw new Error('The significand contains illegal characters.')
-    }
-    this.removeUnnecessaryLeadingZeros()
-    this.makeZeroSignificandPositive()
-  }
-
   get isSignificandNegative(): boolean {
     return this._isSignificandNegative
-  }
-
-  set isSignificandNegative(isSignificandNegative: boolean) {
-    this._isSignificandNegative = isSignificandNegative
-    this.makeZeroSignificandPositive()
   }
 
   get exponent(): number {
     return this._exponent
   }
 
-  set exponent(exponent: number) {
-    // ensure that exponent is not -0
-    this._exponent = exponent === 0 ? 0 : exponent
-  }
-
   get precision(): number {
     return this._precision
-  }
-
-  set precision(precision: number) {
-    if (precision > 0 && precision <= this.significand.length) {
-      this._precision = precision || this.significand.toString().length
-    } else {
-      throw new RangeError(
-        'The precision must be greater than 0 and smaller or equal than the number of digits of the significand.',
-      )
-    }
-    this._precision = precision
-    this.removeUnnecessaryLeadingZeros()
-    this.makeZeroSignificandPositive()
-  }
-
-  private makeZeroSignificandPositive(): void {
-    if (this.significand === '0') {
-      this._isSignificandNegative = false
-    }
-  }
-
-  private removeUnnecessaryLeadingZeros(): void {
-    if (this.significand.length === this.precision) {
-      this._significand = this.significand.slice(leadingZeros(this.significand))
-      this._precision = this.significand.length
-    }
   }
 
   private hasLeadingZero(num: string) {
