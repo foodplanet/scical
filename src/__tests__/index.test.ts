@@ -354,3 +354,25 @@ test.each([
     expect(num1.add(num2)).toEqual(new PrecisionNumber(significandRes, isSignificandResNegative, exponentRes, precisionRes))
   }
 )
+
+test('integration', () => {
+  let num1 = PrecisionNumber.fromDecimalString('0.32')
+  let num2 = PrecisionNumber.fromDecimalString('1.4')
+  let res = num1.add(num2)
+  expect(res).toEqual(new PrecisionNumber('172', false, -2, 2))
+
+  num1 = PrecisionNumber.fromDecimalString('0.32')
+  num2 = PrecisionNumber.fromDecimalString('0.0')
+  res = num1.add(num2)
+  expect(res).toEqual(new PrecisionNumber('32', false, -2, 1))
+
+  num1 = PrecisionNumber.fromDecimalString('2')
+  num2 = PrecisionNumber.fromDecimalString('0.03')
+  res = num1.add(num2)
+  expect(res).toEqual(new PrecisionNumber('203', false, -2, 1))
+
+  num1 = PrecisionNumber.fromDecimalString('0.0')
+  num2 = PrecisionNumber.fromDecimalString('0.00')
+  res = num1.add(num2)
+  expect(res).toEqual(new PrecisionNumber('0', false, -1, 1))
+})
