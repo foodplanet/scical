@@ -1,4 +1,4 @@
-const leadingZeros = (num: string): number => {
+export const leadingZeros = (num: string): number => {
   // the number '0' has no leading zero
   let numOfLeadingZeros = 0
   for (const char of num.slice(0, -1)) {
@@ -11,7 +11,8 @@ const leadingZeros = (num: string): number => {
   return numOfLeadingZeros
 }
 
-const trailingZeros = (num: string): number => {
+export const trailingZeros = (num: string): number => {
+  // the number '0' has one trailing zero
   const indexOfFirstNonZeroChar = num
     .split('')
     .reverse()
@@ -20,7 +21,7 @@ const trailingZeros = (num: string): number => {
   return indexOfFirstNonZeroChar === -1 ? num.length : indexOfFirstNonZeroChar
 }
 
-const validateCharactersOfSignificand = (significand: string): string => {
+export const validateCharactersOfSignificand = (significand: string): string => {
   if (/^\d+$/.test(significand)) {
     return significand
   } else {
@@ -28,7 +29,7 @@ const validateCharactersOfSignificand = (significand: string): string => {
   }
 }
 
-const validateRangeOfPrecision = (
+export const validateRangeOfPrecision = (
   precision: number | undefined,
   significand: string,
 ): number => {
@@ -42,12 +43,12 @@ const validateRangeOfPrecision = (
   }
 }
 
-const validateSignOfExponent = (exponent: number): number => {
+export const validateSignOfExponent = (exponent: number): number => {
   // ensure that exponent is not -0
   return exponent === 0 ? 0 : exponent
 }
 
-const removeUnnecessaryZeros = (
+export const removeUnnecessaryZeros = (
   significand: string,
   exponent: number,
   precision: number,

@@ -1,15 +1,67 @@
-import { PrecisionNumber } from '../index'
-import rewire from 'rewire'
-const scical = rewire('../../lib/index.js')
+import { 
+  PrecisionNumber, 
+  leadingZeros, 
+  trailingZeros, 
+  removeUnnecessaryZeros, 
+  validateCharactersOfSignificand,
+  validateRangeOfPrecision,
+  validateSignOfExponent 
+} from '../index'
 
+// import rewire from 'rewire'
+// const scical = rewire('../../lib/index.js')
+
+test('leadingZeros', () => {
+  expect(leadingZeros('45')).toEqual(0)
+  expect(leadingZeros('4005')).toEqual(0)
+  expect(leadingZeros('045')).toEqual(1)
+  expect(leadingZeros('00080700')).toEqual(3)
+  expect(leadingZeros('000')).toEqual(2)
+  expect(leadingZeros('0')).toEqual(0)
+})
+
+test('trailingZeros', () => {
+  expect(trailingZeros('45')).toEqual(0)
+  expect(trailingZeros('4005')).toEqual(0)
+  expect(trailingZeros('045')).toEqual(0)
+  expect(trailingZeros('00080700')).toEqual(2)
+  expect(trailingZeros('000')).toEqual(3)
+  expect(trailingZeros('0')).toEqual(1)
+})
+
+test('validateCharactersOfSignificand', () => {
+  expect(validateCharactersOfSignificand('45')).toEqual('45')
+  expect(validateCharactersOfSignificand('0074')).toEqual('0074')
+  expect(validateCharactersOfSignificand('0')).toEqual('0')
+  expect(() => validateCharactersOfSignificand('')).toThrow(Error)
+  expect(() => validateCharactersOfSignificand('-12')).toThrow(Error)
+  expect(() => validateCharactersOfSignificand('9 0')).toThrow(Error)
+})
+
+test('validateRangeOfPrecision', () => {
+  expect(validateRangeOfPrecision(1, '45')).toEqual(1)
+  expect(validateRangeOfPrecision(undefined, '0074')).toEqual(4)
+  expect(validateRangeOfPrecision(3, '783')).toEqual(3)
+  expect(() => validateRangeOfPrecision(0, '0')).toThrow(RangeError)
+  expect(() => validateRangeOfPrecision(-1, '63')).toThrow(RangeError)
+  expect(() => validateRangeOfPrecision(5, '0982')).toThrow(RangeError)
+})
+
+test('validateSignOfExponent', () => {
+  expect(validateSignOfExponent(6)).toEqual(6)
+  expect(validateSignOfExponent(-4)).toEqual(-4)
+  expect(validateSignOfExponent(0)).toEqual(0)
+  expect(validateSignOfExponent(-0)).toEqual(0)
+})
 
 test('removeUnnecessaryZeros', () => {
-  const removeUnnecessaryZeros = scical.__get__('removeUnnecessaryZeros')
   expect(removeUnnecessaryZeros('23', 0, 2)).toEqual(['23', 0, 2])
   expect(removeUnnecessaryZeros('230', 0, 2)).toEqual(['23', 1, 2])
   expect(removeUnnecessaryZeros('523', -24, 2)).toEqual(['523', -24, 2])
   expect(removeUnnecessaryZeros('0430', 0, 2)).toEqual(['43', 1, 1])
   expect(removeUnnecessaryZeros('00083', 0, 2)).toEqual(['0083', 0, 1])
+  expect(removeUnnecessaryZeros('0008300', 3, 3)).toEqual(['083', 5, 1])
+  expect(removeUnnecessaryZeros('00650', 2, 5)).toEqual(['650', 2, 3])
 })
 
 
