@@ -1,3 +1,81 @@
+const leadingZeros = (num: string): number => {
+  // the number '0' has no leading zero
+  let numOfLeadingZeros = 0
+  for (const char of num.slice(0, -1)) {
+    if (char === '0') {
+      numOfLeadingZeros++
+    } else {
+      break
+    }
+  }
+  return numOfLeadingZeros
+}
+
+const trailingZeros = (num: string): number => {
+  const indexOfFirstNonZeroChar = num
+    .split('')
+    .reverse()
+    .join('')
+    .search(/[^0]/)
+  return indexOfFirstNonZeroChar === -1 ? num.length : indexOfFirstNonZeroChar
+}
+
+const validateCharactersOfSignificand = (significand: string): string => {
+  if (/^\d+$/.test(significand)) {
+    return significand
+  } else {
+    throw new Error('The significand contains illegal characters.')
+  }
+}
+
+const validateRangeOfPrecision = (
+  precision: number | undefined,
+  significand: string,
+): number => {
+  const calculatedPrecision = precision ?? significand.length
+  if (calculatedPrecision > 0 && calculatedPrecision <= significand.length) {
+    return calculatedPrecision
+  } else {
+    throw new RangeError(
+      'The precision must be greater than 0 and smaller or equal than the number of digits of the significand.',
+    )
+  }
+}
+
+const validateSignOfExponent = (exponent: number): number => {
+  // ensure that exponent is not -0
+  return exponent === 0 ? 0 : exponent
+}
+
+const removeUnnecessaryZeros = (
+  significand: string,
+  exponent: number,
+  precision: number,
+): [string, number, number] => {
+  const significantDigits = significand.slice(0, precision)
+  const insignificantDigits = significand.slice(precision)
+
+  const numOfLeadingZeros = leadingZeros(significand)
+  const numOfLeadingZerosOfSignificandDigits = leadingZeros(significantDigits)
+  const numOfUnnecessaryLeadingZeros =
+    numOfLeadingZeros < precision
+      ? numOfLeadingZeros
+      : numOfLeadingZerosOfSignificandDigits
+
+  const numOfUnnecessaryTrailingZeros = trailingZeros(insignificantDigits)
+
+  const newSignificand = numOfUnnecessaryTrailingZeros
+    ? significand.slice(
+        numOfUnnecessaryLeadingZeros,
+        -numOfUnnecessaryTrailingZeros,
+      )
+    : significand.slice(numOfUnnecessaryLeadingZeros)
+  const newExponent = exponent + numOfUnnecessaryTrailingZeros
+  const newPrecision = precision - numOfUnnecessaryLeadingZeros
+
+  return [newSignificand, newExponent, newPrecision]
+}
+
 export class PrecisionNumber {
   private _significand
   private _isSignificandNegative
@@ -10,14 +88,9 @@ export class PrecisionNumber {
     exponent: number,
     precision?: number,
   ) {
-    let validSignificand = PrecisionNumber.validateCharactersOfSignificand(
-      significand,
-    )
-    let validExponent = PrecisionNumber.validateSignOfExponent(exponent)
-    let validPrecision = PrecisionNumber.validateRangeOfPrecision(
-      precision,
-      validSignificand,
-    )
+    let validSignificand = validateCharactersOfSignificand(significand)
+    let validExponent = validateSignOfExponent(exponent)
+    let validPrecision = validateRangeOfPrecision(precision, validSignificand)
 
     if (/^0+$/.test(significand)) {
       this._significand = '0'
@@ -29,7 +102,7 @@ export class PrecisionNumber {
         validSignificand,
         validExponent,
         validPrecision,
-      ] = PrecisionNumber.removeUnnecessaryZeros(
+      ] = removeUnnecessaryZeros(
         validSignificand,
         validExponent,
         validPrecision,
@@ -39,66 +112,6 @@ export class PrecisionNumber {
       this._exponent = validExponent
       this._precision = validPrecision
     }
-  }
-
-  private static validateCharactersOfSignificand(significand: string): string {
-    if (/^\d+$/.test(significand)) {
-      return significand
-    } else {
-      throw new Error('The significand contains illegal characters.')
-    }
-  }
-
-  private static validateRangeOfPrecision(
-    precision: number | undefined,
-    significand: string,
-  ): number {
-    const calculatedPrecision = precision ?? significand.length
-    if (calculatedPrecision > 0 && calculatedPrecision <= significand.length) {
-      return calculatedPrecision
-    } else {
-      throw new RangeError(
-        'The precision must be greater than 0 and smaller or equal than the number of digits of the significand.',
-      )
-    }
-  }
-
-  private static validateSignOfExponent(exponent: number): number {
-    // ensure that exponent is not -0
-    return exponent === 0 ? 0 : exponent
-  }
-
-  static removeUnnecessaryZeros(
-    significand: string,
-    exponent: number,
-    precision: number,
-  ): [string, number, number] {
-    const significantDigits = significand.slice(0, precision)
-    const insignificantDigits = significand.slice(precision)
-
-    const numOfLeadingZeros = PrecisionNumber.leadingZeros(significand)
-    const numOfLeadingZerosOfSignificandDigits = PrecisionNumber.leadingZeros(
-      significantDigits,
-    )
-    const numOfUnnecessaryLeadingZeros =
-      numOfLeadingZeros < precision
-        ? numOfLeadingZeros
-        : numOfLeadingZerosOfSignificandDigits
-
-    const numOfUnnecessaryTrailingZeros = PrecisionNumber.trailingZeros(
-      insignificantDigits,
-    )
-
-    const newSignificand = numOfUnnecessaryTrailingZeros
-      ? significand.slice(
-          numOfUnnecessaryLeadingZeros,
-          -numOfUnnecessaryTrailingZeros,
-        )
-      : significand.slice(numOfUnnecessaryLeadingZeros)
-    const newExponent = exponent + numOfUnnecessaryTrailingZeros
-    const newPrecision = precision - numOfUnnecessaryLeadingZeros
-
-    return [newSignificand, newExponent, newPrecision]
   }
 
   static fromString(num: string): PrecisionNumber {
@@ -127,7 +140,7 @@ export class PrecisionNumber {
       const numOfDigitsAfterDecimal = num.split('.')[1].length
       let numWithoutDecimalPoint = num.replace('.', '')
       numWithoutDecimalPoint = numWithoutDecimalPoint.slice(
-        PrecisionNumber.leadingZeros(numWithoutDecimalPoint),
+        leadingZeros(numWithoutDecimalPoint),
       )
 
       if (/^-?0+\.0+$/.test(num)) {
@@ -209,32 +222,9 @@ export class PrecisionNumber {
 
   private removeUnnecessaryLeadingZeros(): void {
     if (this.significand.length === this.precision) {
-      this._significand = this.significand.slice(
-        PrecisionNumber.leadingZeros(this.significand),
-      )
+      this._significand = this.significand.slice(leadingZeros(this.significand))
       this._precision = this.significand.length
     }
-  }
-
-  private static leadingZeros(num: string): number {
-    let numOfLeadingZeros = 0
-    for (const char of num.slice(0, -1)) {
-      if (char === '0') {
-        numOfLeadingZeros++
-      } else {
-        break
-      }
-    }
-    return numOfLeadingZeros
-  }
-
-  private static trailingZeros(num: string): number {
-    const indexOfFirstNonZeroChar = num
-      .split('')
-      .reverse()
-      .join('')
-      .search(/[^0]/)
-    return indexOfFirstNonZeroChar === -1 ? num.length : indexOfFirstNonZeroChar
   }
 
   private hasLeadingZero(num: string) {

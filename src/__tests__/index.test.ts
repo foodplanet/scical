@@ -1,12 +1,15 @@
 import { PrecisionNumber } from '../index'
+import rewire from 'rewire'
+const scical = rewire('../../lib/index.js')
 
 
 test('removeUnnecessaryZeros', () => {
-  expect(PrecisionNumber.removeUnnecessaryZeros('23', 0, 2)).toEqual(['23', 0, 2])
-  expect(PrecisionNumber.removeUnnecessaryZeros('230', 0, 2)).toEqual(['23', 1, 2])
-  expect(PrecisionNumber.removeUnnecessaryZeros('523', -24, 2)).toEqual(['523', -24, 2])
-  expect(PrecisionNumber.removeUnnecessaryZeros('0430', 0, 2)).toEqual(['43', 1, 1])
-  expect(PrecisionNumber.removeUnnecessaryZeros('00083', 0, 2)).toEqual(['0083', 0, 1])
+  const removeUnnecessaryZeros = scical.__get__('removeUnnecessaryZeros')
+  expect(removeUnnecessaryZeros('23', 0, 2)).toEqual(['23', 0, 2])
+  expect(removeUnnecessaryZeros('230', 0, 2)).toEqual(['23', 1, 2])
+  expect(removeUnnecessaryZeros('523', -24, 2)).toEqual(['523', -24, 2])
+  expect(removeUnnecessaryZeros('0430', 0, 2)).toEqual(['43', 1, 1])
+  expect(removeUnnecessaryZeros('00083', 0, 2)).toEqual(['0083', 0, 1])
 })
 
 
