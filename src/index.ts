@@ -79,6 +79,18 @@ export const removeUnnecessaryZeros = (
   return [newSignificand, newExponent, newPrecision]
 }
 
+const hasLeadingZero = (num: string) => {
+  return num.length > 1 && num[0] === '0'
+}
+
+const determineNumberToPad = (num1: PrecisionNumber, num2: PrecisionNumber) => {
+  if (num1.exponent > num2.exponent) {
+    return [num1, num2]
+  } else {
+    return [num2, num1]
+  }
+}
+
 export class PrecisionNumber {
   private _significand
   private _isSignificandNegative
@@ -184,10 +196,6 @@ export class PrecisionNumber {
     return this._precision
   }
 
-  private hasLeadingZero(num: string) {
-    return num.length > 1 && num[0] === '0'
-  }
-
   toString(): string {
     const significand = (
       parseInt(this.significand.slice(0, this.precision), 10) +
@@ -197,14 +205,6 @@ export class PrecisionNumber {
     const sign = this.isSignificandNegative && significand !== '0' ? '-' : ''
 
     return sign + significand + 'E' + this.exponent.toString()
-  }
-
-  private determineNumberToPad(num1: PrecisionNumber, num2: PrecisionNumber) {
-    if (num1.exponent > num2.exponent) {
-      return [num1, num2]
-    } else {
-      return [num2, num1]
-    }
   }
 
   add(num: PrecisionNumber): PrecisionNumber {
@@ -220,7 +220,7 @@ export class PrecisionNumber {
         1,
       )
     }
-    const [paddedNumber, unpaddedNumber] = this.determineNumberToPad(this, num)
+    const [paddedNumber, unpaddedNumber] = determineNumberToPad(this, num)
     const padding = paddedNumber.exponent - unpaddedNumber.exponent
     const paddedSignificand = paddedNumber.significand + '0'.repeat(padding)
 
@@ -239,10 +239,10 @@ export class PrecisionNumber {
     )
 
     let minLength = 0
-    if (this.hasLeadingZero(paddedSignificand)) {
+    if (hasLeadingZero(paddedSignificand)) {
       minLength = paddedSignificand.length
     }
-    if (this.hasLeadingZero(unpaddedNumber.significand)) {
+    if (hasLeadingZero(unpaddedNumber.significand)) {
       minLength = Math.max(minLength, unpaddedNumber.significand.length)
     }
 
