@@ -93,23 +93,16 @@ const determineNumberToPad = (num1: PrecisionNumber, num2: PrecisionNumber) => {
 
 export class PrecisionNumber {
   private _significand
-  private _isSignificandNegative
   private _exponent
   private _precision
 
-  constructor(
-    significand: string,
-    isSignificandNegative: boolean,
-    exponent: number,
-    precision?: number,
-  ) {
+  constructor(significand: string, exponent: number, precision?: number) {
     let validSignificand = validateCharactersOfSignificand(significand)
     let validExponent = validateSignOfExponent(exponent)
     let validPrecision = validateRangeOfPrecision(precision, validSignificand)
 
     if (/^0+$/.test(significand)) {
       this._significand = '0'
-      this._isSignificandNegative = false
       this._exponent = validExponent + validSignificand.length - validPrecision
       this._precision = 1
     } else {
@@ -123,58 +116,40 @@ export class PrecisionNumber {
         validPrecision,
       )
       this._significand = validSignificand
-      this._isSignificandNegative = isSignificandNegative
       this._exponent = validExponent
       this._precision = validPrecision
     }
   }
 
   static fromString(num: string): PrecisionNumber {
-    if (/^-?\d+E-?\d+$/.test(num)) {
+    if (/^\d+E-?\d+$/.test(num)) {
       const [significand, rawExponent] = num.split('E')
       const exponent = parseInt(rawExponent, 10)
 
-      if (significand[0] === '-') {
-        return new this(significand.slice(1), true, exponent)
-      } else {
-        return new this(significand, false, exponent)
-      }
+      return new this(significand, exponent)
     } else {
       throw new Error('The provided string is invalid.')
     }
   }
 
   static fromDecimalString(num: string, exponent = 0) {
-    if (/^-?\d+$/.test(num)) {
-      if (num[0] === '-') {
-        return new this(num.slice(1), true, exponent)
-      } else {
-        return new this(num, false, exponent)
-      }
-    } else if (/^-?\d+\.\d+$/.test(num)) {
+    if (/^\d+$/.test(num)) {
+      return new this(num, exponent)
+    } else if (/^\d+\.\d+$/.test(num)) {
       const numOfDigitsAfterDecimal = num.split('.')[1].length
       let numWithoutDecimalPoint = num.replace('.', '')
       numWithoutDecimalPoint = numWithoutDecimalPoint.slice(
         leadingZeros(numWithoutDecimalPoint),
       )
 
-      if (/^-?0+\.0+$/.test(num)) {
-        return new this('0', false, exponent - numOfDigitsAfterDecimal)
+      if (/^0+\.0+$/.test(num)) {
+        return new this('0', exponent - numOfDigitsAfterDecimal)
       }
 
-      if (numWithoutDecimalPoint[0] === '-') {
-        return new this(
-          numWithoutDecimalPoint.slice(1),
-          true,
-          exponent - numOfDigitsAfterDecimal,
-        )
-      } else {
-        return new this(
-          numWithoutDecimalPoint,
-          false,
-          exponent - numOfDigitsAfterDecimal,
-        )
-      }
+      return new this(
+        numWithoutDecimalPoint,
+        exponent - numOfDigitsAfterDecimal,
+      )
     } else {
       throw new Error('The provided string is invalid.')
     }
@@ -182,10 +157,6 @@ export class PrecisionNumber {
 
   get significand(): string {
     return this._significand
-  }
-
-  get isSignificandNegative(): boolean {
-    return this._isSignificandNegative
   }
 
   get exponent(): number {
@@ -202,9 +173,7 @@ export class PrecisionNumber {
       (parseInt(this.significand[this.precision], 10) > 4 ? 1 : 0)
     ).toString()
 
-    const sign = this.isSignificandNegative && significand !== '0' ? '-' : ''
-
-    return sign + significand + 'E' + this.exponent.toString()
+    return significand + 'E' + this.exponent.toString()
   }
 
   toDecimalString(exponent = 0): string {
@@ -247,9 +216,8 @@ export class PrecisionNumber {
     }
 
     return (
-      (this.isSignificandNegative ? '-' : '') +
-      (digitsBeforeDecimal +
-        (digitsAfterDecimal.length ? '.' + digitsAfterDecimal : ''))
+      digitsBeforeDecimal +
+      (digitsAfterDecimal.length ? '.' + digitsAfterDecimal : '')
     )
   }
 
@@ -259,21 +227,14 @@ export class PrecisionNumber {
       parseInt(this.significand, 10) === 0 &&
       parseInt(num.significand, 10) === 0
     ) {
-      return new PrecisionNumber(
-        '0',
-        false,
-        Math.max(this.exponent, num.exponent),
-        1,
-      )
+      return new PrecisionNumber('0', Math.max(this.exponent, num.exponent), 1)
     }
     const [paddedNumber, unpaddedNumber] = determineNumberToPad(this, num)
     const padding = paddedNumber.exponent - unpaddedNumber.exponent
     const paddedSignificand = paddedNumber.significand + '0'.repeat(padding)
 
     const newSignificand =
-      Number(unpaddedNumber.significand) *
-        (unpaddedNumber.isSignificandNegative ? -1 : 1) +
-      Number(paddedSignificand) * (paddedNumber.isSignificandNegative ? -1 : 1)
+      Number(unpaddedNumber.significand) + Number(paddedSignificand)
 
     const maxNumOfInsignificantDigits = Math.max(
       paddedSignificand.length - paddedNumber.precision,
@@ -299,18 +260,10 @@ export class PrecisionNumber {
         newSignificandWithLeadingZeros
     }
 
-    const isNewSignificantNegative = newSignificand < 0
     const newExponent = unpaddedNumber.exponent
 
-    // console.log(
-    //   newSignificandWithLeadingZeros,
-    //   isNewSignificantNegative,
-    //   newExponent,
-    //   newPrecision,
-    // )
     return new PrecisionNumber(
       newSignificandWithLeadingZeros,
-      isNewSignificantNegative,
       newExponent,
       newPrecision,
     )
