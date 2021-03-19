@@ -252,6 +252,40 @@ test('fromString', () => {
   expect(() => PrecisionNumber.fromString('E55')).toThrow(Error)
 })
 
+test('toDecimalString', () => {
+  expect(new PrecisionNumber('0', false, 0).toDecimalString()).toEqual('0')
+  expect(new PrecisionNumber('0', false, -1).toDecimalString()).toEqual('0.0')
+  expect(new PrecisionNumber('0', false, 1).toDecimalString()).toEqual('0')
+  expect(new PrecisionNumber('0', false, -5).toDecimalString()).toEqual('0.00000')
+  expect(new PrecisionNumber('0', false, 7).toDecimalString()).toEqual('0')
+
+  expect(new PrecisionNumber('10', false, -1).toDecimalString()).toEqual('1.0')
+  expect(new PrecisionNumber('5', false, -1).toDecimalString()).toEqual('0.5')
+  expect(new PrecisionNumber('921', false, 0).toDecimalString()).toEqual('921')
+  expect(new PrecisionNumber('23', true, 1).toDecimalString()).toEqual('-230')
+  expect(new PrecisionNumber('32769', false, -3).toDecimalString()).toEqual('32.769')
+  expect(new PrecisionNumber('32769', true, 3).toDecimalString()).toEqual('-32769000')
+
+  expect(new PrecisionNumber('10', false, -1).toDecimalString(0)).toEqual('1.0')
+  expect(new PrecisionNumber('5', true, -1).toDecimalString(-1)).toEqual('-0.05')
+  expect(new PrecisionNumber('921', false, 0).toDecimalString(-4)).toEqual('0.0921')
+  expect(new PrecisionNumber('23', false, 1).toDecimalString(1)).toEqual('2300')
+  expect(new PrecisionNumber('32769', true, -3).toDecimalString(2)).toEqual('-3276.9')
+  expect(new PrecisionNumber('32769', false, 3).toDecimalString(-1)).toEqual('3276900')
+
+  expect(new PrecisionNumber('13', false, 0, 1).toDecimalString()).toEqual('10')
+  expect(new PrecisionNumber('15', false, 0, 1).toDecimalString()).toEqual('20')
+  expect(new PrecisionNumber('195', false, 1, 2).toDecimalString()).toEqual('2000')
+  expect(new PrecisionNumber('99', false, 0, 1).toDecimalString(1)).toEqual('1000')
+  expect(new PrecisionNumber('9963', false, -2, 1).toDecimalString(-1)).toEqual('10')
+  expect(new PrecisionNumber('41234', true, -2, 4).toDecimalString()).toEqual('-412.3')
+  expect(new PrecisionNumber('05', false, 0, 1).toDecimalString()).toEqual('10')
+  expect(new PrecisionNumber('04', false, 0, 1).toDecimalString()).toEqual('0')
+  expect(new PrecisionNumber('00742', false, -1, 1).toDecimalString()).toEqual('0')
+  expect(new PrecisionNumber('00742', false, 1, 2).toDecimalString()).toEqual('10000')
+  expect(new PrecisionNumber('921', false, -4, 2).toDecimalString()).toEqual('0.092')
+})
+
 test('fromDecimalString', () => {
   // zero
   expect(PrecisionNumber.fromDecimalString('00', 3)).toEqual(new PrecisionNumber('0', false, 3))

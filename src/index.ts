@@ -207,6 +207,52 @@ export class PrecisionNumber {
     return sign + significand + 'E' + this.exponent.toString()
   }
 
+  toDecimalString(exponent = 0): string {
+    const calculatedExponent = this.exponent + exponent
+    const numOfInsignificantDigits = this.significand.length - this.precision
+
+    const roundedNum = (
+      Math.round(
+        parseInt(this.significand, 10) / 10 ** numOfInsignificantDigits,
+      ) *
+      10 ** numOfInsignificantDigits
+    ).toString()
+
+    let digitsBeforeDecimal = ''
+    let digitsAfterDecimal = ''
+
+    if (calculatedExponent >= 0) {
+      if (roundedNum === '0') {
+        digitsBeforeDecimal = '0'
+      } else {
+        digitsBeforeDecimal = roundedNum + '0'.repeat(calculatedExponent)
+      }
+    } else {
+      if (roundedNum.length > -calculatedExponent) {
+        const numOfDigitsBeforeDecimal = roundedNum.length + calculatedExponent
+        const numOfDigitsAfterDecimal = -calculatedExponent
+        digitsBeforeDecimal = roundedNum.slice(0, numOfDigitsBeforeDecimal)
+        if (numOfDigitsAfterDecimal > numOfInsignificantDigits) {
+          digitsAfterDecimal = roundedNum.slice(
+            numOfDigitsBeforeDecimal,
+            roundedNum.length - numOfInsignificantDigits,
+          )
+        }
+      } else {
+        digitsBeforeDecimal = '0'
+        digitsAfterDecimal =
+          '0'.repeat(Math.abs(calculatedExponent + roundedNum.length)) +
+          roundedNum.slice(0, roundedNum.length - numOfInsignificantDigits)
+      }
+    }
+
+    return (
+      (this.isSignificandNegative ? '-' : '') +
+      (digitsBeforeDecimal +
+        (digitsAfterDecimal.length ? '.' + digitsAfterDecimal : ''))
+    )
+  }
+
   add(num: PrecisionNumber): PrecisionNumber {
     // special case if both significands are zero
     if (
