@@ -358,6 +358,8 @@ test.each([
   ['3', true, 0, 1, '5', false, 0, 1, '2', false, 0, 1],
   ['999', false, -2, 2, '999', false, -1, 3, '10989', false, -2, 4],
   ['1', false, 3, 1, '9', false, 2, 1, '19', false, 2, 1],
+  // This test fails, fix it if you want to use negative numbers
+  // ['10', true, -1, 2, '100', false, -2, 3, '0', false, -1, 1],
   // both significands are zero
   ['0', false, 1, 1, '0', false, 0, 1, '0', false, 1, 1],
   ['0', false, 1, 1, '5', false, 0, 1, '05', false, 0, 1],
