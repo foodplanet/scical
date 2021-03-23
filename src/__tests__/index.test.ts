@@ -364,3 +364,11 @@ test('integration', () => {
   res = num1.add(num2)
   expect(res).toEqual(new PrecisionNumber('0', -1, 1))
 })
+
+test('div', () => {
+  expect(new PrecisionNumber('12', 0).div(5)).toEqual(new PrecisionNumber('2', 0))
+  expect(new PrecisionNumber('8312', -2, 2).div(17)).toEqual(new PrecisionNumber('489', -2, 1))
+  expect(new PrecisionNumber('0', -3).div(4)).toEqual(new PrecisionNumber('0', -3))
+  expect(new PrecisionNumber('02', 0, 1).div(5)).toEqual(new PrecisionNumber('2', 0))
+  expect(new PrecisionNumber('12', 0).div(5)).toEqual(new PrecisionNumber('2', 0))
+})

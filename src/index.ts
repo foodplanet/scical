@@ -268,4 +268,17 @@ export class PrecisionNumber {
       newPrecision,
     )
   }
+
+  div(num: number) {
+    if (num > 0) {
+      const newSignificand = Math.round(
+        parseInt(this.significand, 10) / num,
+      ).toString()
+      const newPrecision =
+        this.precision - (this.significand.length - newSignificand.length)
+      return new PrecisionNumber(newSignificand, this.exponent, newPrecision)
+    } else {
+      throw new RangeError('The number must be greater than 0.')
+    }
+  }
 }
