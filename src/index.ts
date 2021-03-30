@@ -269,16 +269,22 @@ export class PrecisionNumber {
     )
   }
 
-  div(num: number) {
-    if (num > 0) {
+  divideByPositiveInteger(num: number) {
+    if (Number.isInteger(num) && num > 0) {
+      if (hasLeadingZero(this.significand)) {
+        return new PrecisionNumber('0', 0)
+      }
       const newSignificand = Math.round(
         parseInt(this.significand, 10) / num,
       ).toString()
       const newPrecision =
         this.precision - (this.significand.length - newSignificand.length)
+      if (newPrecision < 1) {
+        return new PrecisionNumber('0', 0)
+      }
       return new PrecisionNumber(newSignificand, this.exponent, newPrecision)
     } else {
-      throw new RangeError('The number must be greater than 0.')
+      throw new RangeError('The number must be a positive integer.')
     }
   }
 }
