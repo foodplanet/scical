@@ -172,8 +172,7 @@ export class PrecisionNumber {
       parseInt(this.significand.slice(0, this.precision), 10) +
       (parseInt(this.significand[this.precision], 10) > 4 ? 1 : 0)
     ).toString()
-
-    return significand + 'E' + this.exponent.toString()
+    return significand + 'E' + (this.exponent + (this.significand.length - significand.length)).toString()
   }
 
   toDecimalString(exponent = 0): string {

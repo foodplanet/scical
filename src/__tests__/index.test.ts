@@ -204,13 +204,14 @@ test('constructor', () => {
 test('toString', () => {
   expect(new PrecisionNumber('23', 0).toString()).toEqual('23E0')
   expect(new PrecisionNumber('826', 1).toString()).toEqual('826E1')
-  expect(new PrecisionNumber('42',0, 1).toString()).toEqual('4E0')
-  expect(new PrecisionNumber('178',2, 1).toString()).toEqual('2E2')
+  expect(new PrecisionNumber('42',0, 1).toString()).toEqual('4E1')
+  expect(new PrecisionNumber('178',2, 1).toString()).toEqual('2E4')
   expect(new PrecisionNumber('995', 0, 2).toString()).toEqual('100E0')
   expect(new PrecisionNumber('0',0).toString()).toEqual('0E0')
   expect(new PrecisionNumber('0', -2).toString()).toEqual('0E-2')
-  expect(new PrecisionNumber('09', 0, 1).toString()).toEqual('1E0')
-  expect(new PrecisionNumber('0003', 0, 3).toString()).toEqual('0E0')
+  expect(new PrecisionNumber('09', 0, 1).toString()).toEqual('1E1')
+  expect(new PrecisionNumber('0003', 0, 3).toString()).toEqual('0E1')
+  expect(new PrecisionNumber('396', -5, 1).toString()).toEqual('4E-3')
 })
 
 test('fromString', () => {
@@ -363,6 +364,11 @@ test('integration', () => {
   num2 = PrecisionNumber.fromDecimalString('0.00')
   res = num1.add(num2)
   expect(res).toEqual(new PrecisionNumber('0', -1, 1))
+
+  num1 = PrecisionNumber.fromDecimalString('2', -3)
+  num2 = PrecisionNumber.fromDecimalString('1.96', -3)
+  res = num1.add(num2)
+  expect(res.toString()).toEqual('4E-3')
 })
 
 test('div', () => {
